@@ -1,0 +1,2214 @@
+{
+  "datasets": [
+    {
+      "name": "1c448395",
+      "displayName": "ev_cleaned_data",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.default.ev_cleaned_data",
+        "dimensions": [
+          {
+            "name": "Station address",
+            "expr": "source.`Station address`",
+            "displayName": "Station address"
+          },
+          {
+            "name": "Operator",
+            "expr": "source.Operator",
+            "displayName": "Operator"
+          },
+          {
+            "name": "Total Plugs",
+            "expr": "source.`Total Plugs`",
+            "displayName": "Total Plugs"
+          },
+          {
+            "name": "Charger_Type",
+            "expr": "source.Charger_Type",
+            "displayName": "Charger Type"
+          },
+          {
+            "name": "Capacity Per Plug",
+            "expr": "source.`Capacity Per Plug`",
+            "displayName": "Capacity Per Plug"
+          },
+          {
+            "name": "Council",
+            "expr": "source.Council",
+            "displayName": "Council"
+          },
+          {
+            "name": "Post Code",
+            "expr": "source.`Post Code`",
+            "displayName": "Post Code"
+          },
+          {
+            "name": "Location",
+            "expr": "source.Location",
+            "displayName": "Location"
+          },
+          {
+            "name": "Total Capacity(kW)",
+            "expr": "source.`Total Capacity(kW)`",
+            "displayName": "Total Capacity(kW)"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          },
+          {
+            "displayName": "Total Capacity (kW)",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            },
+            "synonyms": [
+              "aggregate capacity",
+              "sum capacity",
+              "total station capacity"
+            ],
+            "name": "total_capacity_kw",
+            "expr": "SUM(`Total Capacity(kW)`)",
+            "comment": "Sum of all charging station capacities in kilowatts."
+          },
+          {
+            "displayName": "Average Capacity per Plug (kW)",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "max",
+                "places": 2.0
+              }
+            },
+            "synonyms": [
+              "mean plug capacity",
+              "avg plug capacity"
+            ],
+            "name": "average_capacity_per_plug",
+            "expr": "AVG(CAST(`Capacity Per Plug` AS DOUBLE))",
+            "comment": "Average charging capacity per plug across all stations."
+          },
+          {
+            "displayName": "Total Number of Plugs",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            },
+            "synonyms": [
+              "aggregate plugs",
+              "sum plugs",
+              "total plugs"
+            ],
+            "name": "total_number_of_plugs",
+            "expr": "SUM(`Total Plugs`)",
+            "comment": "Total count of charging plugs across all stations."
+          },
+          {
+            "displayName": "Distinct Operator Count",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            },
+            "synonyms": [
+              "unique operators",
+              "operator diversity"
+            ],
+            "name": "distinct_operator_count",
+            "expr": "COUNT(DISTINCT Operator)",
+            "comment": "Number of unique charging station operators."
+          }
+        ]
+      }
+    },
+    {
+      "name": "8b4b7725",
+      "displayName": "Average Capacity by Operator",
+      "queryLines": [
+        "SELECT\n",
+        "  `Operator`,\n",
+        "  AVG(`Total Capacity(kW)`) AS avg_total_capacity\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  `Operator`"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    },
+    {
+      "name": "8b82ff2f",
+      "displayName": "Max Station Capacity",
+      "queryLines": [
+        "SELECT\n",
+        "  MAX(`Total Capacity(kW)`) AS max_total_station_capacity_kw\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    },
+    {
+      "name": "ed0507e6",
+      "displayName": "Average Capacity Per Plug",
+      "queryLines": [
+        "SELECT\n",
+        "  SUM(`Total Capacity(kW)`) / SUM(`Total Plugs`) AS avg_capacity_per_plug\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data"
+      ],
+      "catalog": "workspace",
+      "schema": "default"
+    },
+    {
+      "name": "45b86819",
+      "displayName": "Council With Fewest Electric Vehicle Stations",
+      "queryLines": [
+        "SELECT council, COUNT(council) AS council_count\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY council\n",
+        "ORDER BY council_count ASC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "d1bdeced",
+      "displayName": "Top Three Councils for Electric Vehicle Stations",
+      "queryLines": [
+        "SELECT council, COUNT(council) AS council_count\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY council\n",
+        "ORDER BY council_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "2281761b",
+      "displayName": "Top 3 council with most AC chargers",
+      "queryLines": [
+        "SELECT\n",
+        "  council,\n",
+        "  COUNT(*) AS ac_charger_count\n",
+        "FROM\n",
+        "  ev_cleaned_data\n",
+        "WHERE\n",
+        "  charger_type = 'AC'\n",
+        "GROUP BY\n",
+        "  council\n",
+        "ORDER BY\n",
+        "  ac_charger_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "f5d9d6c6",
+      "displayName": "Top 3 council with most AC chargers",
+      "queryLines": [
+        "SELECT\n",
+        "  council,\n",
+        "  COUNT(*) AS dc_charger_count\n",
+        "FROM\n",
+        "  ev_cleaned_data\n",
+        "WHERE\n",
+        "  charger_type = 'DC'\n",
+        "GROUP BY\n",
+        "  council\n",
+        "ORDER BY\n",
+        "  dc_charger_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "889ab7fc",
+      "displayName": "Council with Most Plugs",
+      "queryLines": [
+        "SELECT\n",
+        "  Council,\n",
+        "  SUM(`Total Plugs`) AS total_plugs\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  Council\n",
+        "ORDER BY\n",
+        "  total_plugs DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "193b3b6b",
+      "displayName": "Council Plug Count Summary",
+      "queryLines": [
+        "SELECT\n",
+        "  Council,\n",
+        "  SUM(`Total Plugs`) AS total_plugs\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  Council\n",
+        "ORDER BY\n",
+        "  total_plugs ASC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "f845aed9",
+      "displayName": "List of Council with Total Plugs",
+      "queryLines": [
+        "\n",
+        "-- Total Plugs by Council\n",
+        "SELECT\n",
+        "  Council,\n",
+        "  SUM(`Total Plugs`) AS total_capacity\n",
+        "FROM\n",
+        "  ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  Council\n",
+        "ORDER BY\n",
+        "  Council;"
+      ]
+    },
+    {
+      "name": "4c2d05a0",
+      "displayName": "List of Council by Total Capacity",
+      "queryLines": [
+        "-- Total Capacity (kW) by Council\n",
+        "SELECT\n",
+        "  Council,\n",
+        "  SUM(`Total Capacity(kW)`) AS total_capacity_kw\n",
+        "FROM\n",
+        "  ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  Council\n",
+        "ORDER BY\n",
+        "  Council;\n"
+      ]
+    },
+    {
+      "name": "f2c4bbd8",
+      "displayName": "Top 3 companies with most EV Stations",
+      "queryLines": [
+        "SELECT Operator, COUNT(*) AS ev_charger_count\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY Operator\n",
+        "ORDER BY ev_charger_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "31f44440",
+      "displayName": "Top 3 companies with least EV Stations",
+      "queryLines": [
+        "SELECT Operator, COUNT(*) AS ev_charger_count\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY Operator\n",
+        "ORDER BY ev_charger_count ASC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "e64d4ab3",
+      "displayName": "Top 3 Operators with Most AC Chargers",
+      "queryLines": [
+        "SELECT\n",
+        "  Operator,\n",
+        "  COUNT(*) AS ac_charger_count\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "WHERE\n",
+        "  Charger_Type = 'AC'\n",
+        "GROUP BY\n",
+        "  Operator\n",
+        "ORDER BY\n",
+        "  ac_charger_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "d7f236eb",
+      "displayName": "Top 3 Operators with Most DC chargers",
+      "queryLines": [
+        "SELECT\n",
+        "  Operator,\n",
+        "  COUNT(*) AS ac_charger_count\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "WHERE\n",
+        "  Charger_Type = 'DC'\n",
+        "GROUP BY\n",
+        "  Operator\n",
+        "ORDER BY\n",
+        "  ac_charger_count DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "a8d39157",
+      "displayName": "List of operators by Total Plugs",
+      "queryLines": [
+        "SELECT\n",
+        "  Operator,\n",
+        "  SUM(`Total Plugs`) AS total_plugs\n",
+        "FROM\n",
+        "  ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  Operator\n",
+        "ORDER BY\n",
+        "  total_plugs DESC"
+      ]
+    },
+    {
+      "name": "dad679ae",
+      "displayName": "Top 3 operator by Capacity",
+      "queryLines": [
+        "SELECT Operator,\n",
+        "       SUM(`Total Capacity(kW)`) AS total_capacity_kw\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY Operator\n",
+        "ORDER BY total_capacity_kw DESC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "82f8ccc2",
+      "displayName": "Bottom 3 Operatos by Capacity",
+      "queryLines": [
+        "SELECT Operator,\n",
+        "       SUM(`Total Capacity(kW)`) AS total_capacity_kw\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY Operator\n",
+        "ORDER BY total_capacity_kw ASC\n",
+        "LIMIT 3"
+      ]
+    },
+    {
+      "name": "a166c9c6",
+      "displayName": "Station Details with most Plugs",
+      "queryLines": [
+        "SELECT *\n",
+        "FROM ev_cleaned_data\n",
+        "ORDER BY `Total Plugs` DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "60b7691d",
+      "displayName": "Station with least Plugs",
+      "queryLines": [
+        "SELECT *\n",
+        "FROM ev_cleaned_data\n",
+        "ORDER BY `Total Plugs` ASC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "41ce1cd2",
+      "displayName": "Post Code with most Plugs Available",
+      "queryLines": [
+        "SELECT `Post Code`, SUM(`Total Plugs`) AS total_plugs\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY `Post Code`\n",
+        "ORDER BY total_plugs DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "fd92eeac",
+      "displayName": "Post Code with Least Plugs",
+      "queryLines": [
+        "SELECT `Post Code`, SUM(`Total Plugs`) AS total_plugs\n",
+        "FROM ev_cleaned_data\n",
+        "GROUP BY `Post Code`\n",
+        "ORDER BY total_plugs ASC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "a7c470b6",
+      "displayName": "Post Code with Most Capacity",
+      "queryLines": [
+        "SELECT\n",
+        "  `Post Code`,\n",
+        "  SUM(`Total Capacity(kW)`) AS total_capacity_kw\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  `Post Code`\n",
+        "ORDER BY\n",
+        "  total_capacity_kw DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "6b5c46d1",
+      "displayName": "Post Code with Least Capacity",
+      "queryLines": [
+        "SELECT\n",
+        "  `Post Code`,\n",
+        "  SUM(`Total Capacity(kW)`) AS total_capacity_kw\n",
+        "FROM\n",
+        "  workspace.default.ev_cleaned_data\n",
+        "GROUP BY\n",
+        "  `Post Code`\n",
+        "ORDER BY\n",
+        "  total_capacity_kw ASC\n",
+        "LIMIT 1"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "17818148",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "total_stations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(count)",
+                      "expression": "MEASURE(`count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Stations",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(count)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "total_capacity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_capacity_kw)",
+                      "expression": "MEASURE(`total_capacity_kw`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Capacity (kW)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_capacity_kw)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "total_plugs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_number_of_plugs)",
+                      "expression": "MEASURE(`total_number_of_plugs`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Plugs",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_number_of_plugs)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "operator_count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(distinct_operator_count)",
+                      "expression": "MEASURE(`distinct_operator_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Unique Operators",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(distinct_operator_count)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "capacity_by_operator",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_capacity_kw)",
+                      "expression": "MEASURE(`total_capacity_kw`)"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Capacity by Operator",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(total_capacity_kw)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "plugs_by_council",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_number_of_plugs)",
+                      "expression": "MEASURE(`total_number_of_plugs`)"
+                    },
+                    {
+                      "name": "Council",
+                      "expression": "`Council`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Plugs by Council",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(total_number_of_plugs)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "stations_by_charger_type",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "Charger_Type",
+                      "expression": "`Charger_Type`"
+                    },
+                    {
+                      "name": "measure(count)",
+                      "expression": "MEASURE(`count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Stations by Charger Type",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Charger_Type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(count)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "avg_capacity_per_plug_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(average_capacity_per_plug)",
+                      "expression": "MEASURE(`average_capacity_per_plug`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Capacity per Plug (kW)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(average_capacity_per_plug)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "af4cb04c",
+      "displayName": "EV Insights",
+      "layout": [
+        {
+          "widget": {
+            "name": "4b65f93e",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    },
+                    {
+                      "name": "Council",
+                      "expression": "`Council`"
+                    },
+                    {
+                      "name": "Charger_Type",
+                      "expression": "`Charger_Type`"
+                    },
+                    {
+                      "name": "Total Plugs",
+                      "expression": "`Total Plugs`"
+                    },
+                    {
+                      "name": "Total Capacity(kW)",
+                      "expression": "`Total Capacity(kW)`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "rowsPerPage": 10,
+              "frame": {
+                "title": "Station Details",
+                "showTitle": true
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Operator",
+                    "useForSearch": true
+                  },
+                  {
+                    "fieldName": "Council"
+                  },
+                  {
+                    "fieldName": "Charger_Type"
+                  },
+                  {
+                    "fieldName": "Total Plugs"
+                  },
+                  {
+                    "fieldName": "Total Capacity(kW)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "ac_vs_dc_pie",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(count)",
+                      "expression": "MEASURE(`count`)"
+                    },
+                    {
+                      "name": "Charger_Type",
+                      "expression": "`Charger_Type`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "AC vs DC Distribution",
+                "showTitle": true
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "measure(count)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Charger_Type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_ac_operators",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e64d4ab3",
+                  "fields": [
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    },
+                    {
+                      "name": "ac_charger_count",
+                      "expression": "`ac_charger_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top AC Operators",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "ac_charger_count",
+                  "displayName": "AC Stations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_dc_operators",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d7f236eb",
+                  "fields": [
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    },
+                    {
+                      "name": "ac_charger_count",
+                      "expression": "`ac_charger_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top DC Operators",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "ac_charger_count",
+                  "displayName": "DC Stations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "council_postcode",
+      "displayName": "Council & Post Code",
+      "layout": [
+        {
+          "widget": {
+            "name": "top_councils_stations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d1bdeced",
+                  "fields": [
+                    {
+                      "name": "council_count",
+                      "expression": "`council_count`"
+                    },
+                    {
+                      "name": "council",
+                      "expression": "`council`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Councils by Station Count",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "council_count",
+                  "displayName": "Stations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "bottom_councils_stations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "45b86819",
+                  "fields": [
+                    {
+                      "name": "council_count",
+                      "expression": "`council_count`"
+                    },
+                    {
+                      "name": "council",
+                      "expression": "`council`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bottom Councils by Station Count",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "council_count",
+                  "displayName": "Stations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_council_ac",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2281761b",
+                  "fields": [
+                    {
+                      "name": "ac_charger_count",
+                      "expression": "`ac_charger_count`"
+                    },
+                    {
+                      "name": "council",
+                      "expression": "`council`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Councils - AC Chargers",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "ac_charger_count",
+                  "displayName": "AC Charger",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_council_dc",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f5d9d6c6",
+                  "fields": [
+                    {
+                      "name": "dc_charger_count",
+                      "expression": "`dc_charger_count`"
+                    },
+                    {
+                      "name": "council",
+                      "expression": "`council`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Councils - DC Chargers",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "dc_charger_count",
+                  "displayName": "DC Charger",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "postcode_most_plugs_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "41ce1cd2",
+                  "fields": [
+                    {
+                      "name": "Post Code",
+                      "expression": "`Post Code`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Post Code - Most Plugs",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Post Code"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "postcode_least_plugs_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fd92eeac",
+                  "fields": [
+                    {
+                      "name": "Post Code",
+                      "expression": "`Post Code`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Post Code - Least Plugs",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Post Code"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 12,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "postcode_most_capacity_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a7c470b6",
+                  "fields": [
+                    {
+                      "name": "Post Code",
+                      "expression": "`Post Code`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Post Code - Most Capacity",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Post Code"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "postcode_least_capacity_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "6b5c46d1",
+                  "fields": [
+                    {
+                      "name": "Post Code",
+                      "expression": "`Post Code`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Post Code - Least Capacity",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Post Code"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 12,
+            "width": 3,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "operators",
+      "displayName": "Operators",
+      "layout": [
+        {
+          "widget": {
+            "name": "top_operators_stations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f2c4bbd8",
+                  "fields": [
+                    {
+                      "name": "ev_charger_count",
+                      "expression": "`ev_charger_count`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Operators by Station Count",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "ev_charger_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "bottom_operators_stations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "31f44440",
+                  "fields": [
+                    {
+                      "name": "ev_charger_count",
+                      "expression": "`ev_charger_count`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bottom Operators by Station Count",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "ev_charger_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_operators_capacity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "dad679ae",
+                  "fields": [
+                    {
+                      "name": "total_capacity_kw",
+                      "expression": "`total_capacity_kw`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Operators by Capacity",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "total_capacity_kw",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "bottom_operators_capacity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "82f8ccc2",
+                  "fields": [
+                    {
+                      "name": "total_capacity_kw",
+                      "expression": "`total_capacity_kw`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bottom Operators by Capacity",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "total_capacity_kw",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "operators_by_plugs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a8d39157",
+                  "fields": [
+                    {
+                      "name": "total_plugs",
+                      "expression": "`total_plugs`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Operators by Total Plugs",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "total_plugs",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "avg_capacity_by_operator",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8b4b7725",
+                  "fields": [
+                    {
+                      "name": "avg_total_capacity",
+                      "expression": "`avg_total_capacity`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Avg Capacity by Operator",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "avg_total_capacity",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Operator",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "capacity",
+      "displayName": "Capacity Analysis",
+      "layout": [
+        {
+          "widget": {
+            "name": "total_capacity_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_capacity_kw)",
+                      "expression": "MEASURE(`total_capacity_kw`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Capacity (kW)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_capacity_kw)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "max_station_capacity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8b82ff2f",
+                  "fields": [
+                    {
+                      "name": "max_total_station_capacity_kw",
+                      "expression": "`max_total_station_capacity_kw`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Max Station Capacity (kW)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max_total_station_capacity_kw"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "avg_capacity_per_plug",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(average_capacity_per_plug)",
+                      "expression": "MEASURE(`average_capacity_per_plug`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Capacity per Plug (kW)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(average_capacity_per_plug)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "total_plugs_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1c448395",
+                  "fields": [
+                    {
+                      "name": "measure(total_number_of_plugs)",
+                      "expression": "MEASURE(`total_number_of_plugs`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Plugs",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_number_of_plugs)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "capacity_by_council",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4c2d05a0",
+                  "fields": [
+                    {
+                      "name": "Council",
+                      "expression": "`Council`"
+                    },
+                    {
+                      "name": "total_capacity_kw",
+                      "expression": "`total_capacity_kw`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Capacity Distribution by Council",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_capacity_kw",
+                  "displayName": "Capacity (kW)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "plugs_by_council_chart",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f845aed9",
+                  "fields": [
+                    {
+                      "name": "Council",
+                      "expression": "`Council`"
+                    },
+                    {
+                      "name": "total_capacity",
+                      "expression": "`total_capacity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Plugs Distribution by Council",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Council",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_capacity",
+                  "displayName": "Chargers",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "station_most_plugs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a166c9c6",
+                  "fields": [
+                    {
+                      "name": "Station address",
+                      "expression": "`Station address`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    },
+                    {
+                      "name": "Total Plugs",
+                      "expression": "`Total Plugs`"
+                    },
+                    {
+                      "name": "Total Capacity(kW)",
+                      "expression": "`Total Capacity(kW)`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "rowsPerPage": 10,
+              "frame": {
+                "title": "Station with Most Plugs",
+                "showTitle": true
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Station address"
+                  },
+                  {
+                    "fieldName": "Operator"
+                  },
+                  {
+                    "fieldName": "Total Plugs"
+                  },
+                  {
+                    "fieldName": "Total Capacity(kW)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "station_least_plugs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "60b7691d",
+                  "fields": [
+                    {
+                      "name": "Station address",
+                      "expression": "`Station address`"
+                    },
+                    {
+                      "name": "Operator",
+                      "expression": "`Operator`"
+                    },
+                    {
+                      "name": "Total Plugs",
+                      "expression": "`Total Plugs`"
+                    },
+                    {
+                      "name": "Total Capacity(kW)",
+                      "expression": "`Total Capacity(kW)`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "rowsPerPage": 10,
+              "frame": {
+                "title": "Station with Least Plugs",
+                "showTitle": true
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Station address"
+                  },
+                  {
+                    "fieldName": "Operator"
+                  },
+                  {
+                    "fieldName": "Total Plugs"
+                  },
+                  {
+                    "fieldName": "Total Capacity(kW)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
